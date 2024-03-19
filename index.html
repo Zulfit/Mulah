@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>JS Read CSV</title>
+    <style>
+      * {
+        font-family: Arial, Helvetica, sans-serif;
+        box-sizing: border-box;
+      }
+      table {
+        border-collapse: collapse;
+      }
+      table td {
+        padding: 10px;
+        border: 1px solid #000;
+      }
+    </style>
+    <script></script>
+  </head>
+  <body>
+    <table id="table1"></table>
+    <br>
+    <table id="table2">
+      <tr>
+        <td><b>Category</b></td>
+        <td><b>Value</b></td>
+      </tr>
+      <tr>
+        <td>Alpha</td>
+        <!-- A5 + A20 -->
+        <td id="alphaValue"></td> 
+      </tr>
+      <tr>
+        <td>Beta</td>
+        <!-- A15/A7 -->
+        <td id="betaValue"></td>
+      </tr>
+      <tr>
+        <td>Charlie</td>
+        <!-- A13 * A12 -->
+        <td id="charlieValue"></td>
+      </tr>
+    </table>
+
+    <script>
+
+      window.onload = () => {
+        //HTML TABLE
+        var table1 = document.getElementById("table1");
+
+        //AJAX FETCH CSV
+        fetch("Table_Input.csv")
+          .then(res => res.text())
+          .then(csv => {
+            //CLEAR HTML TABLE
+            table1.innerHTML = "";
+
+            //SPLIT INTO ROWS
+            let rows = csv.split("\r\n");
+
+            //LOOP THROUGH ROWS + SPLIT COLUMNS FOR DISPLAY TABLE 1
+            for (let row of rows) {
+              let cols = row.match(
+                /(?:\"([^\"]*(?:\"\"[^\"]*)*)\")|([^\",]+)/g
+              );
+              if (cols != null) {
+                let tr = table1.insertRow();
+                // console.log(tr);
+                for (let col of cols) {
+                  let td = tr.insertCell();
+                  // console.log(td);
+                  td.innerHTML = col.replace(/(^"|"$)/g, "");
+                }
+              }
+            }
+
+            // Extract values from specific cells in table 1
+            let cells = table1.querySelectorAll("td");
+            let alphaValue = parseFloat(cells[11].innerText) + parseFloat(cells[41].innerText); // A5 + A20
+            let betaValue = parseFloat(cells[31].innerText) / parseFloat(cells[15].innerText); // A15 / A7
+            let charlieValue = parseFloat(cells[27].innerText) * parseFloat(cells[25].innerText); // A13 * A12
+
+
+            // Displaying results in the second table 
+            document.getElementById("alphaValue").textContent = alphaValue;
+            document.getElementById("betaValue").textContent = betaValue;
+            document.getElementById("charlieValue").textContent = charlieValue;
+          
+          });
+      };
+    </script>
+  </body>
+</html>
